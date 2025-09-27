@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
+import '../models/category.dart';
 import '../models/transaction.dart';
 
 class DbService {
@@ -44,10 +45,19 @@ class DbService {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             amount REAL,
             type TEXT,
-            category TEXT,
+            categoryId INTEGER,
             note TEXT,
-            date TEXT
+            date TEXT,
+            FOREIGN KEY (categoryId) REFERENCES categories(id)
           )
+        ''');
+
+        await db.execute('''
+          CREATE TABLE categories(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            type TEXT
+            )
         ''');
       },
     );
@@ -70,6 +80,60 @@ class DbService {
     );
 
     return maps.map((map) => TransactionModel.fromMap(map)).toList();
+  }
+
+  Future<void> updateTransaction(TransactionModel tx) async {
+    final db = await database;
+    await db.update(
+      'transactions',
+      tx.toMap(),
+      where: 'id = ?',
+      whereArgs: [tx.id],
+    );
+  }
+
+  Future<void> deleteTransaction(int id) async {
+    final db = await database;
+    await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
+  }
+
+  Future<List<Map<String, dynamic>>> getTransactionsWithCategory() async {
+    final db = await database;
+
+    final result = await db.rawQuery('''
+      SELECT t.id, t.amount, t.type, t.note, t.date,
+        c.id as categoryId, c.name as categoryName, c.type as categoryType
+       FROM transactions t
+       LEFT JOIN categories c ON t.categoryId = c.id
+       ORDER BY t.date DESC
+    ''');
+
+    return result;
+  }
+
+  Future<int> insertCategory(Category category) async {
+    final db = await database;
+    return await db.insert(
+      'categories',
+      category.toMap(),
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Category>> getCategories({String? type}) async {
+    final db = await database;
+    final maps = await db.query(
+      'categories',
+      where: type != null ? 'type = ?' : null,
+      whereArgs: type != null ? [type] : null,
+    );
+
+    return maps.map((cat) => Category.fromMap(cat)).toList();
+  }
+
+  Future<int> deleteCategory(int id) async {
+    final db = await database;
+    return await db.delete('categories', where: 'id = ?', whereArgs: [id]);
   }
 
   Future<void> close() async {
