@@ -3,25 +3,53 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../db/db_service.dart';
 import '../models/transaction.dart';
 
+final transactionProvider =
+    AsyncNotifierProvider<TransactionNotifier, List<TransactionModel>>(
+      TransactionNotifier.new,
+    );
+
 class TransactionNotifier extends AsyncNotifier<List<TransactionModel>> {
   final DbService _dbService = DbService();
 
   @override
   Future<List<TransactionModel>> build() async {
-    return await _dbService.getTransactions();
+    return await _fetchTransaction();
+  }
+
+  Future<List<TransactionModel>> _fetchTransaction() async {
+    final transactions = await _dbService.getTransactionsWithCategory();
+    return transactions.map((map) => TransactionModel.fromMap(map)).toList();
   }
 
   Future<void> addTransaction(TransactionModel tx) async {
-    state = const AsyncValue.loading();
-    await _dbService.insertTransaction(tx);
-
-    await refreshTransactions();
+    state = await AsyncValue.guard(() async {
+      await _dbService.insertTransaction(tx);
+      return await _fetchTransaction();
+    });
   }
 
-  Future<void> refreshTransactions() async {
-    state = const AsyncValue.loading();
-    final transactions = await _dbService.getTransactions();
-    state = AsyncValue.data(transactions);
+  Future<void> updateTransaction(TransactionModel tx) async {
+    state = await AsyncValue.guard(() async {
+      await _dbService.updateTransaction(tx);
+
+      return await _fetchTransaction();
+    });
+  }
+
+  Future<void> deleteTransaction(int id) async {
+    state = await AsyncValue.guard(() async {
+      await _dbService.deleteTransaction(id);
+
+      return await _fetchTransaction();
+    });
+  }
+
+  Future<void> restoreTransaction(TransactionModel tx) async {
+    state = await AsyncValue.guard(() async {
+      await _dbService.insertTransaction(tx);
+
+      return await _fetchTransaction();
+    });
   }
 
   double get totalExpense => (state.value ?? [])
@@ -34,8 +62,3 @@ class TransactionNotifier extends AsyncNotifier<List<TransactionModel>> {
 
   double get balance => totalIncome - totalExpense;
 }
-
-final transactionProvider =
-    AsyncNotifierProvider<TransactionNotifier, List<TransactionModel>>(
-      TransactionNotifier.new,
-    );
