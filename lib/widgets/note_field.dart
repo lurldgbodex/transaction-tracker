@@ -11,7 +11,7 @@ class NoteField extends StatelessWidget {
       controller: controller,
       decoration: const InputDecoration(
         labelText: "Note (optional)",
-        prefixIcon: Icon(Icons.note),
+        prefixIcon: Icon(Icons.notes),
       ),
     );
   }

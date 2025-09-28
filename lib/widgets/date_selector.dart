@@ -18,7 +18,7 @@ class DateSelector extends StatelessWidget {
       children: [
         Text(
           "Date: ${formatDate(selectedDate)}",
-          style: Theme.of(context).textTheme.bodyMedium,
+          style: Theme.of(context).textTheme.bodyLarge,
         ),
         const Spacer(),
         TextButton(onPressed: onDatePressed, child: const Text('change')),
