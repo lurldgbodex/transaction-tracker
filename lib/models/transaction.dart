@@ -2,15 +2,17 @@ class TransactionModel {
   final int? id;
   final double amount;
   final String type;
-  final String category;
+  final int? categoryId;
+  final String? categoryName;
   final String note;
   final DateTime date;
 
   TransactionModel({
     this.id,
-    required this.amount,
+    this.categoryName,
+    this.categoryId,
     required this.type,
-    required this.category,
+    required this.amount,
     required this.note,
     required this.date,
   });
@@ -20,7 +22,7 @@ class TransactionModel {
       'id': id,
       'amount': amount,
       'type': type,
-      'category': category,
+      'categoryId': categoryId,
       'note': note,
       'date': date.toIso8601String(),
     };
@@ -28,11 +30,12 @@ class TransactionModel {
 
   factory TransactionModel.fromMap(Map<String, dynamic> map) {
     return TransactionModel(
-      id: map['id'],
-      amount: map['amount'],
-      type: map['type'],
-      category: map['category'],
-      note: map['note'],
+      id: map['id'] as int?,
+      amount: map['amount'] as double,
+      type: map['type'] as String,
+      categoryId: map['categoryId'] as int?,
+      categoryName: map['categoryName'] as String?,
+      note: map['note'] as String,
       date: DateTime.parse(map['date']),
     );
   }
