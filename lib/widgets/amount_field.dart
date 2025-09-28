@@ -1,18 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
-class AmountField extends StatelessWidget {
+import '../providers/currency_provider.dart';
+
+class AmountField extends ConsumerWidget {
   final TextEditingController controller;
 
   const AmountField({super.key, required this.controller});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currencyCode = ref.watch(currencyProvider);
+    final currencySymbol = NumberFormat.simpleCurrency(
+      name: currencyCode,
+    ).currencySymbol;
+
     return TextFormField(
       controller: controller,
-      keyboardType: TextInputType.number,
-      decoration: const InputDecoration(
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(
         labelText: 'Amount',
-        prefixIcon: Icon(Icons.attach_money),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Text(
+            currencySymbol,
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+        ),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
@@ -23,6 +38,7 @@ class AmountField extends StatelessWidget {
         }
         return null;
       },
+      onChanged: (value) {},
     );
   }
 }

@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../providers/currency_provider.dart';
+import '../utils/currency_utils.dart';
 
 class TransactionSummaryCard extends StatelessWidget {
   final String title;
@@ -38,12 +42,17 @@ class TransactionSummaryCard extends StatelessWidget {
             ).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
-          Text(
-            "\$${value.toStringAsFixed(2)}",
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: valueColor,
-              fontWeight: FontWeight.bold,
-            ),
+          Consumer(
+            builder: (context, ref, _) {
+              final currencyCode = ref.watch(currencyProvider);
+              return Text(
+                CurrencyUtils.formatAmount(value, currencyCode: currencyCode),
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: valueColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            },
           ),
         ],
       ),
