@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../models/category.dart';
 import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/date_utils.dart';
@@ -25,24 +26,16 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   final _noteController = TextEditingController();
 
   String _type = "expense";
-  String _category = "Food";
+  Category? _category;
   DateTime _selectedDate = DateTime.now();
-
-  final List<String> _categories = [
-    "Food",
-    "Transport",
-    "Bills",
-    "Shopping",
-    "Salary",
-    "Others",
-  ];
 
   Future<void> _submit() async {
     if (_formKey.currentState?.validate() ?? false) {
       final tx = TransactionModel(
         amount: double.parse(_amountController.text),
-        type: _type,
-        category: _category,
+        type: _category?.type ?? _type,
+        categoryId: _category?.id,
+        categoryName: _category?.name,
         note: _noteController.text,
         date: _selectedDate,
       );
@@ -78,7 +71,14 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Add Transaction")),
+      appBar: AppBar(
+        leading: IconButton(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: Icon(Icons.arrow_back_ios_new),
+        ),
+        title: const Text("Add Transaction"),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -98,7 +98,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
               const SizedBox(height: 16),
               CategoryDropDown(
                 selectedCategory: _category,
-                categories: _categories,
                 onCategoryChanged: (category) {
                   setState(() {
                     _category = category;
