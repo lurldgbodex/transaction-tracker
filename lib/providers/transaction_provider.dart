@@ -2,11 +2,36 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../db/db_service.dart';
 import '../models/transaction.dart';
+import 'filter_provider.dart';
 
 final transactionProvider =
     AsyncNotifierProvider<TransactionNotifier, List<TransactionModel>>(
       TransactionNotifier.new,
     );
+
+final filteredTransactionProvider =
+    Provider<AsyncValue<List<TransactionModel>>>((ref) {
+      final transactions = ref.watch(transactionProvider);
+      final filter = ref.watch(filterProvider);
+
+      return transactions.when(
+        data: (transactions) {
+          final filtered = transactions.where((tx) {
+            if (filter.type != 'all' && tx.type != filter.type) {
+              return false;
+            }
+            if (filter.categoryId != null &&
+                tx.categoryId != filter.categoryId) {
+              return false;
+            }
+            return true;
+          }).toList();
+          return AsyncValue.data(filtered);
+        },
+        loading: () => const AsyncValue.loading(),
+        error: (error, stackTrace) => AsyncValue.error(error, stackTrace),
+      );
+    });
 
 class TransactionNotifier extends AsyncNotifier<List<TransactionModel>> {
   final DbService _dbService = DbService();
