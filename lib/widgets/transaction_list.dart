@@ -124,13 +124,9 @@ class TransactionList extends ConsumerWidget {
                     color: isIncome ? Colors.green : Colors.red,
                   ),
                 ),
-                title: Text(
-                  tx.note.isNotEmpty
-                      ? tx.note
-                      : tx.categoryName ?? "No Category",
-                ),
+                title: Text(tx.categoryName ?? "No Category"),
                 subtitle: Text(
-                  "${tx.type}  •  ${tx.date.toLocal().toString().split(' ')[0]}",
+                  "${tx.note}  •  ${tx.date.toLocal().toString().split(' ')[0]}",
                 ),
                 trailing: Consumer(
                   builder: (context, ref, _) {
