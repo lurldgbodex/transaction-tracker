@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../utils/filter_util.dart';
+
 class TransactionFilter {
   final String type;
   final int? categoryId;
@@ -9,29 +11,13 @@ class TransactionFilter {
 
   TransactionFilter copyWith({
     String? type,
-    int? categoryId,
-    DateTimeRange? dateRange,
+    Optional<int>? categoryId,
+    Optional<DateTimeRange>? dateRange,
   }) {
     return TransactionFilter(
       type: type ?? this.type,
-      categoryId: categoryId ?? this.categoryId,
-      dateRange: dateRange ?? this.dateRange,
+      categoryId: categoryId != null ? categoryId.value : this.categoryId,
+      dateRange: dateRange != null ? dateRange.value : this.dateRange,
     );
-  }
-
-  List<String> get activeFilters {
-    final filters = <String>[];
-    if (type != "all") {
-      filters.add(type);
-    }
-    if (categoryId != null) {
-      filters.add("Category");
-    }
-    if (dateRange != null) {
-      filters.add(
-        "Date: ${dateRange!.start.toLocal()} - ${dateRange!.end.toLocal()}",
-      );
-    }
-    return filters;
   }
 }
