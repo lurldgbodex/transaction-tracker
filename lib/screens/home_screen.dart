@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/transaction.dart';
+import '../providers/filter_provider.dart';
 import '../providers/transaction_provider.dart';
 import '../screens/add_transaction_screen.dart';
+import '../utils/filter_transaction_utils.dart';
 import '../widgets/transaction_filter_sheet.dart';
 import '../widgets/transaction_summary_card.dart';
-import '../widgets/transaction_list.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -15,6 +15,10 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final asyncTransactions = ref.watch(transactionProvider);
+    final allTransactions = ref.watch(allTransactionsProvider);
+    final incomeTransactions = ref.watch(incomeTransactionProvider);
+    final expenseTransactions = ref.watch(expenseTransactionProvider);
+    final activeFilters = ref.watch(activeFilterProvider);
 
     return DefaultTabController(
       length: 3,
@@ -83,6 +87,36 @@ class HomeScreen extends ConsumerWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  if (activeFilters.isNotEmpty)
+                    Wrap(
+                      spacing: 8,
+                      children: [
+                        for (final filter in activeFilters)
+                          Chip(
+                            shape: LinearBorder.none,
+                            label: Text(
+                              filter.displayName,
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                            deleteIcon: const Icon(Icons.close),
+                            onDeleted: () {
+                              ref
+                                  .read(filterProvider.notifier)
+                                  .clearFilter(filter.type);
+                            },
+                          ),
+                        ActionChip(
+                          shape: LinearBorder.none,
+                          label: const Text(
+                            'Clear all',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                          onPressed: () {
+                            ref.read(filterProvider.notifier).reset();
+                          },
+                        ),
+                      ],
+                    ),
                   TransactionSummaryCard(
                     title: "Balance",
                     value: balance,
@@ -112,21 +146,20 @@ class HomeScreen extends ConsumerWidget {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        _buildTransactionList(
-                          transactions,
-                          message: "No transactions yet",
+                        FilterTransactionUtil.getDisplayTransaction(
+                          allTransactions,
+                          "No transactions yet",
+                          ref,
                         ),
-                        _buildTransactionList(
-                          transactions
-                              .where((tx) => tx.type == 'income')
-                              .toList(),
-                          message: "No income transactions yet",
+                        FilterTransactionUtil.getDisplayTransaction(
+                          incomeTransactions,
+                          "No income transactions yet",
+                          ref,
                         ),
-                        _buildTransactionList(
-                          transactions
-                              .where((tx) => tx.type == 'expense')
-                              .toList(),
-                          message: "No expense transactions yet",
+                        FilterTransactionUtil.getDisplayTransaction(
+                          expenseTransactions,
+                          "No expense transactions yet",
+                          ref,
                         ),
                       ],
                     ),
@@ -146,15 +179,5 @@ class HomeScreen extends ConsumerWidget {
         ),
       ),
     );
-  }
-
-  Widget _buildTransactionList(
-    List<TransactionModel> transactions, {
-    required String message,
-  }) {
-    if (transactions.isEmpty) {
-      return Center(child: Text(message));
-    }
-    return TransactionList(transactions: transactions);
   }
 }
