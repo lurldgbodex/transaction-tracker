@@ -16,11 +16,13 @@ class TransactionFilterSheet extends ConsumerWidget {
       child: Wrap(
         runSpacing: 20,
         children: [
-          Text(
-            "Filter Transactions",
-            style: Theme.of(
-              context,
-            ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          Center(
+            child: Text(
+              "Filter Transactions",
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -64,7 +66,19 @@ class TransactionFilterSheet extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const Text("Date"),
-              TextButton(onPressed: () async {}, child: const Text("Today")),
+              TextButton(
+                onPressed: () async {
+                  final dateRange = await showDateRangePicker(
+                    context: context,
+                    firstDate: DateTime.now().subtract(
+                      const Duration(days: 365),
+                    ),
+                    lastDate: DateTime.now(),
+                  );
+                  ref.read(filterProvider.notifier).setDateRange(dateRange);
+                },
+                child: const Text("Select Date"),
+              ),
             ],
           ),
           Align(
