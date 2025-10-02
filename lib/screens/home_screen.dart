@@ -7,6 +7,7 @@ import '../screens/add_transaction_screen.dart';
 import '../utils/filter_transaction_utils.dart';
 import '../widgets/transaction_filter_sheet.dart';
 import '../widgets/transaction_summary_card.dart';
+import 'insights_screen.dart';
 import 'settings_screen.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -44,6 +45,14 @@ class HomeScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const SettingsScreen()),
                 );
               },
+            ),
+            IconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => const InsightsScreen()),
+                );
+              },
+              icon: const Icon(Icons.insights),
             ),
           ],
           bottom: TabBar(
