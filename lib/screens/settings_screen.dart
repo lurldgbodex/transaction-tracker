@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:project_tracker/widgets/theme_mode_settings.dart';
 
 import '../widgets/currency_settings.dart';
+import '../widgets/navigate_back.dart';
+import '../widgets/theme_mode_settings.dart';
 import 'category_screen.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -15,10 +16,7 @@ class SettingsScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Settings"),
         centerTitle: true,
-        leading: IconButton(
-          onPressed: Navigator.of(context).pop,
-          icon: Icon(Icons.arrow_back_ios_new),
-        ),
+        leading: const NavigateBack(),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

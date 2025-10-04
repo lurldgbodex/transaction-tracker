@@ -5,6 +5,7 @@ import '../providers/transaction_provider.dart';
 import '../widgets/balance_line.dart';
 import '../widgets/category_pie.dart';
 import '../widgets/monthly_bar.dart';
+import '../widgets/navigate_back.dart';
 
 class InsightsScreen extends ConsumerWidget {
   const InsightsScreen({super.key});
@@ -14,38 +15,43 @@ class InsightsScreen extends ConsumerWidget {
     final asyncTransactions = ref.watch(transactionProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Insights'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Insights'),
+        centerTitle: true,
+        leading: const NavigateBack(),
+      ),
       body: asyncTransactions.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) =>
             const Center(child: Text("Error loading Insights")),
         data: (transactions) {
-          return transactions.isEmpty
-              ? const Center(child: Text("No data for insights"))
-              : DefaultTabController(
-                  length: 3,
-                  child: Column(
+          if (transactions.isEmpty) {
+            return const Center(child: Text("No data for insights"));
+          }
+          return DefaultTabController(
+            length: 3,
+            child: Column(
+              children: [
+                const TabBar(
+                  dividerColor: Colors.transparent,
+                  tabs: [
+                    Tab(text: "By Category"),
+                    Tab(text: "Monthly"),
+                    Tab(text: "Balance"),
+                  ],
+                ),
+                Expanded(
+                  child: TabBarView(
                     children: [
-                      const TabBar(
-                        dividerColor: Colors.transparent,
-                        tabs: [
-                          Tab(text: "By Category"),
-                          Tab(text: "Monthly"),
-                          Tab(text: "Balance"),
-                        ],
-                      ),
-                      Expanded(
-                        child: TabBarView(
-                          children: [
-                            CategoryPie(transactions: transactions),
-                            MonthlyBar(transactions: transactions),
-                            BalanceLine(transactions: transactions),
-                          ],
-                        ),
-                      ),
+                      CategoryPie(transactions: transactions),
+                      MonthlyBar(transactions: transactions),
+                      BalanceLine(transactions: transactions),
                     ],
                   ),
-                );
+                ),
+              ],
+            ),
+          );
         },
       ),
     );

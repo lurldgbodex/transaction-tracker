@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/category_provider.dart';
 import '../utils/category_dialog.dart';
+import '../widgets/navigate_back.dart';
 
 class CategoryScreen extends ConsumerWidget {
   const CategoryScreen({super.key});
@@ -16,10 +17,7 @@ class CategoryScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text("Manage Categories"),
         centerTitle: true,
-        leading: IconButton(
-          onPressed: Navigator.of(context).pop,
-          icon: Icon(Icons.arrow_back_ios_new),
-        ),
+        leading: const NavigateBack(),
       ),
       body: categories.isEmpty
           ? const Center(child: Text("No categories yet"))

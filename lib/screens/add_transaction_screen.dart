@@ -6,6 +6,7 @@ import '../models/transaction.dart';
 import '../providers/transaction_provider.dart';
 import '../utils/date_utils.dart';
 import '../widgets/amount_field.dart';
+import '../widgets/navigate_back.dart';
 import '../widgets/type_selector.dart';
 import '../widgets/category_dropdown.dart';
 import '../widgets/note_field.dart';
@@ -72,10 +73,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(Icons.arrow_back_ios_new),
-        ),
+        leading: NavigateBack(),
         title: const Text("Add Transaction"),
         centerTitle: true,
       ),
